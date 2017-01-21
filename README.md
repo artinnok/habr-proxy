@@ -9,7 +9,8 @@
 
 ## Установка
 
-Теперь и далее считается, что у стоит UNIX-like система
+Теперь и далее считается, что у вас стоит UNIX-like система
+
 1. Клонируем проект: `git clone https://github.com/artinnok/habr-proxy.git`
 2. Ставим виртуальное окружение: `virtualenv -p python3 env`
 3. Активируем виртуальное окружение: `source env/bin/activate`
