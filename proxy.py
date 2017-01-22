@@ -1,3 +1,23 @@
+"""
+##### Прокси-сервер для Хабра #####
+
+Простейший прокси-сервер, использовались библиотеки:
+* requests - запросы на проксируемый сайт
+* lxml - замена ссылок на полученной странице + добавление ТМ
+* click - параметры командной строки
+
+
+##### Параметры запуска #####
+
+* --host - хост, на котором стартует прокси-сервер (default - localhost)
+* --port - порт, на котором стартует прокси-сервер (default - 8034)
+* --site - сайт, который проксируем (default - https://habrahabr.ru)
+
+
+##### Пример запуска #####
+>>> python proxy.py --port=8000 --site=http://docs.python-requests.org/en/master
+"""
+
 import re
 import webbrowser
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -6,7 +26,9 @@ import requests
 import click
 from lxml import html
 
+
 TM = '™'
+
 REQUEST_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) '
                   'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95',
@@ -18,16 +40,8 @@ REQUEST_HEADERS = {
               'image/webp,*/*;q=0.8'
 }
 RESPONSE_HEADERS = ('Content-Type', 'Content-Length', 'Date',)
-PATTERN = "(?<!\w)\w{6}(?=[^\w]|$)(?iu)"
 
-# TODO
-# + замена href у тэгов <а> на локальный хост
-# + вставка ™ после слов, которые длиной шесть бук
-# + отдать заголовки браузерные
-# + посмотреть на resolbv_base_link из lxml
-# + запуск из командной строки - порт, сайт
-# + открывать главную хабра при старте прокси сервера
-# посмотреть варианты решения манки патча
+PATTERN = "(?<!\w)\w{6}(?=[^\w]|$)(?iu)"
 
 
 class RequestHandler(BaseHTTPRequestHandler):
