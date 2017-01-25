@@ -74,7 +74,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def _replace_host(self, text):
         root = html.document_fromstring(text)
-        return root.rewrite_links(self._replace)
+        root.rewrite_links(self._replace)
+        return root
 
     def _replace(self, link):
         return link.replace(self.site, self.localhost)
