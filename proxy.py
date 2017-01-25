@@ -68,7 +68,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         if 'text/html' in self.res.headers['Content-Type']:
             self._replace_host()
             self._add_tm()
-            return self.content
+            return bytes(self.content, encoding='utf-8')
 
         return self.res.content
 
@@ -87,7 +87,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             item.text = self._add(item.text)
             item.tail = self._add(item.tail)
 
-        self.content = html.tostring(self.root)
+        self.content = html.tostring(self.root, encoding='unicode')
 
     def _sub(self, str):
         return re.sub(PATTERN, self._repl, str)
