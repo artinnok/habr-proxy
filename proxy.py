@@ -28,6 +28,7 @@ from lxml import html
 
 
 TM = '™'
+PLUS = '&plus;'
 
 REQUEST_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) '
@@ -83,11 +84,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                 "h4", "h5", "h6", "p", "q", "s", "strike", "blockquote", "br",)
 
         for item in self.root.iter(tags):
-            if item.text is not None:
-                item.text = self._sub(item.text)
-
-            if item.tail is not None:
-                item.tail = self._sub(item.tail)
+            item.text = self._add(item.text)
+            item.tail = self._add(item.tail)
 
         self.content = html.tostring(self.root)
 
@@ -96,6 +94,11 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def _repl(self, match):
         return match.group() + TM
+
+    def _add(self, text):
+        if text is not None:
+            text = self._sub(text)
+            return text.replace(PLUS, '+')
 
 
 @click.command()
