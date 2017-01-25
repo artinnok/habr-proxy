@@ -66,28 +66,28 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def _modify_content(self):
         if 'text/html' in self.res.headers['Content-Type']:
-            self._replace_host()
-            self._add_tm()
-            return bytes(self.content, encoding='utf-8')
+            root = self._replace_host(self.res.text)
+            text = self._add_tm(root)
+            return bytes(text, encoding='utf-8')
 
         return self.res.content
 
-    def _replace_host(self):
-        self.root = html.document_fromstring(self.res.text)
-        self.root.rewrite_links(self._replace)
+    def _replace_host(self, text):
+        root = html.document_fromstring(text)
+        return root.rewrite_links(self._replace)
 
     def _replace(self, link):
         return link.replace(self.site, self.localhost)
 
-    def _add_tm(self):
+    def _add_tm(self, root):
         tags = ("div", "span", "i", "a", "b", "strong", "li", "h1", "h2", "h3",
                 "h4", "h5", "h6", "p", "q", "s", "strike", "blockquote", "br",)
 
-        for item in self.root.iter(tags):
+        for item in root.iter(tags):
             item.text = self._add(item.text)
             item.tail = self._add(item.tail)
 
-        self.content = html.tostring(self.root, encoding='unicode')
+        return html.tostring(root, encoding='unicode')
 
     def _sub(self, str):
         return re.sub(PATTERN, self._repl, str)
