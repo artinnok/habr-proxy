@@ -88,7 +88,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             item.text = self._add(item.text)
             item.tail = self._add(item.tail)
 
-        return html.tostring(root, encoding='unicode')
+        return html.tostring(root, encoding='unicode',
+                             doctype='<!DOCTYPE html>')
 
     def _sub(self, str):
         return re.sub(PATTERN, self._repl, str)
