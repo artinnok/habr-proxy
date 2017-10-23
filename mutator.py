@@ -18,18 +18,18 @@ class Mutator:
         self.response = response
 
         if 'text/html' in self.response.headers['Content-Type']:
-            root = self._replace_host(self.response.text)
+            root = self._replace_site_host(self.response.text)
             text = self._add_tm(root)
             return bytes(text, encoding='utf-8')
 
         return self.response.content
 
-    def _replace_host(self, text):
+    def _replace_site_host(self, text):
         root = html.fromstring(text)
-        root.rewrite_links(self._replace)
+        root.rewrite_links(self._rewrite_link)
         return root
 
-    def _replace(self, link):
+    def _rewrite_link(self, link):
         return link.replace(self.site, self.proxy_host)
 
     def _add_tm(self, root):
@@ -42,13 +42,10 @@ class Mutator:
 
         return html.tostring(root, encoding='unicode', doctype='<!DOCTYPE html>')
 
-    def _sub(self, string):
-        return re.sub(PATTERN, self._repl, string)
-
-    def _repl(self, match):
+    def _replace_tm(self, match):
         return match.group() + TM
 
     def _add(self, text):
         if text is not None:
-            text = self._sub(text)
+            text = re.sub(PATTERN, self._replace_tm, text)
             return text.replace(PLUS, '+')

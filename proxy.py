@@ -53,8 +53,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     def _send_response_to_client(self):
         self.send_response(self.response.status_code)
 
-        [self.send_header(key, value) for key, value in self.response.headers.items()
-         if key in RESPONSE_HEADERS]
+        [self.send_header(key, value) for key, value in self.response.headers.items() if key in RESPONSE_HEADERS]
         self.end_headers()
 
         out = self.mutator.modify_content(self.response)
