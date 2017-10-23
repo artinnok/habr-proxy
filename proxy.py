@@ -104,7 +104,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 @click.command()
-@click.option('--host', default='localhost', help='хост прокси-сервера')
+@click.option('--host', default='0.0.0.0', help='хост прокси-сервера')
 @click.option('--port', default=8034, help='порт прокси-сервера')
 @click.option('--site', default='https://habrahabr.ru',
               help='проксируемый сайт')
@@ -119,6 +119,7 @@ def run(host, port, site):
 
     server = HTTPServer((host, port), RequestHandler)
     server.serve_forever()
+
 
 if __name__ == '__main__':
     run()
