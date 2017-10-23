@@ -24,6 +24,8 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import requests
 import click
 
+from mutator import Mutator
+
 
 REQUEST_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) '
@@ -39,12 +41,14 @@ RESPONSE_HEADERS = ('Content-Type', 'Content-Length', 'Date',)
 
 
 class RequestHandler(BaseHTTPRequestHandler):
+    mutator = None
+
     def do_GET(self):
         self._get_response_from_site()
         self._send_response_to_client()
 
     def _get_response_from_site(self):
-        self.response = requests.get(self.site + self.path, headers=REQUEST_HEADERS)
+        self.response = requests.get(self.mutator.site + self.path, headers=REQUEST_HEADERS)
 
     def _send_response_to_client(self):
         self.send_response(self.response.status_code)
@@ -53,7 +57,7 @@ class RequestHandler(BaseHTTPRequestHandler):
          if key in RESPONSE_HEADERS]
         self.end_headers()
 
-        out = self._modify_content()
+        out = self.mutator.modify_content(self.response)
 
         self.wfile.write(out)
 
@@ -61,16 +65,13 @@ class RequestHandler(BaseHTTPRequestHandler):
 @click.command()
 @click.option('--host', default='0.0.0.0', help='хост прокси-сервера')
 @click.option('--port', default=8034, help='порт прокси-сервера')
-@click.option('--site', default='https://habrahabr.ru',
-              help='проксируемый сайт')
+@click.option('--site', default='https://habrahabr.ru', help='проксируемый сайт')
 def run(host, port, site):
-    localhost = 'http://{}:{}'.format(host, port)
+    proxy_host = 'http://{}:{}'.format(host, port)
 
-    # monkey patching!
-    RequestHandler.site = site
-    RequestHandler.localhost = localhost
+    RequestHandler.mutator = Mutator(proxy_host, site)
 
-    webbrowser.open(localhost)
+    webbrowser.open(proxy_host)
 
     server = HTTPServer((host, port), RequestHandler)
     server.serve_forever()
