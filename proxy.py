@@ -18,17 +18,12 @@
 >>> python proxy.py --port=8000 --site=http://docs.python-requests.org/en/master
 """
 
-import re
 import webbrowser
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 import requests
 import click
-from lxml import html
 
-
-TM = '™'
-PLUS = '&plus;'
 
 REQUEST_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) '
@@ -42,8 +37,6 @@ REQUEST_HEADERS = {
 }
 RESPONSE_HEADERS = ('Content-Type', 'Content-Length', 'Date',)
 
-PATTERN = "(?<!\w)\w{6}(?=[^\w]|$)(?iu)"
-
 
 class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -51,56 +44,18 @@ class RequestHandler(BaseHTTPRequestHandler):
         self._send_response_to_client()
 
     def _get_response_from_site(self):
-        self.res = requests.get(self.site + self.path, headers=REQUEST_HEADERS)
+        self.response = requests.get(self.site + self.path, headers=REQUEST_HEADERS)
 
     def _send_response_to_client(self):
-        self.send_response(self.res.status_code)
+        self.send_response(self.response.status_code)
 
-        [self.send_header(key, value) for key, value in self.res.headers.items()
+        [self.send_header(key, value) for key, value in self.response.headers.items()
          if key in RESPONSE_HEADERS]
         self.end_headers()
 
         out = self._modify_content()
 
         self.wfile.write(out)
-
-    def _modify_content(self):
-        if 'text/html' in self.res.headers['Content-Type']:
-            root = self._replace_host(self.res.text)
-            text = self._add_tm(root)
-            return bytes(text, encoding='utf-8')
-
-        return self.res.content
-
-    def _replace_host(self, text):
-        root = html.fromstring(text)
-        root.rewrite_links(self._replace)
-        return root
-
-    def _replace(self, link):
-        return link.replace(self.site, self.localhost)
-
-    def _add_tm(self, root):
-        tags = ("div", "span", "i", "a", "b", "strong", "li", "h1", "h2", "h3",
-                "h4", "h5", "h6", "p", "q", "s", "strike", "blockquote", "br",)
-
-        for item in root.iter(tags):
-            item.text = self._add(item.text)
-            item.tail = self._add(item.tail)
-
-        return html.tostring(root, encoding='unicode',
-                             doctype='<!DOCTYPE html>')
-
-    def _sub(self, str):
-        return re.sub(PATTERN, self._repl, str)
-
-    def _repl(self, match):
-        return match.group() + TM
-
-    def _add(self, text):
-        if text is not None:
-            text = self._sub(text)
-            return text.replace(PLUS, '+')
 
 
 @click.command()
