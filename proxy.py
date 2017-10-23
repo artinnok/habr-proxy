@@ -45,7 +45,12 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self._get_response_from_site()
-        self._send_response_to_client()
+
+        try:
+            self._send_response_to_client()
+
+        except BrokenPipeError:
+            print('Client terminated connection.')
 
     def _get_response_from_site(self):
         self.response = requests.get(self.mutator.site + self.path, headers=REQUEST_HEADERS)
