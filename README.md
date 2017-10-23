@@ -21,4 +21,11 @@ sudo apt-get install python3-lxml python-lxml libxml2-dev libxslt-dev python-dev
 5. Установим зависимости: `pip install -r requirements.txt`
 6. Стартуем прокси - сервер: `python3 proxy.py`
 
+
+## Docker-образ
+
+Также, можно спуллить через Docker:
+1. Пуллим: `docker pull artinnok/habr-proxy`
+2. Запускаем: `docker run -p 8034:8034 artinnok/habr-proxy`
+
 Можно посмотреть параметры прокси - сервера: `python3 proxy.py --help`
